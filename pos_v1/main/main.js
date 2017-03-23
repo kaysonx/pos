@@ -2,7 +2,7 @@
 
 function printReceipt(tags) {
     let countGoodsInfo = getAllGoodsCount(tags)
-    let basicGoodsInfo = getGoodsInfo(countGoodsInfo)
+    let basicGoodsInfo = getAllGoodsInfo(countGoodsInfo)
     let basicGoodsInfo_promotion = getAllGoodsPromotion(basicGoodsInfo)
     let finalResult = countGoodsPrice(basicGoodsInfo_promotion)
     printGoodsInfo(finalResult)
@@ -64,54 +64,15 @@ function countGoodPrice(good) {
 }
 
 
-function getGoodsInfo(barcodeInfo) {
-    let resultGoods = []
+
+const getAllGoodsInfo = (barcodeInfo) => {
     let items = loadAllItems()
-    for (let index = 0; index < barcodeInfo.length; index++) {
-        let barcodeItem = barcodeInfo[index];
-        let findItem = null
-        for (let item of items) {
-            if (item.barcode == barcodeItem.barcode) {
-                findItem = item
-                break;
-            }
-        }
-        findItem.count = barcodeItem.count
-        resultGoods.push(findItem)
-    }
-    return resultGoods
+    return barcodeInfo.map(goods => {
+        let searchItems = items.filter(item => item.barcode === goods.barcode)
+        searchItems[0].count = goods.count
+        return searchItems[0]
+    })
 }
-
-// const getGoodsInfo = (barcodeInfo) => {
-//     let resultGoods = []
-//     let items = loadAllItems()
-//     for (let index = 0; index < barcodeInfo.length; index++) {
-//         let barcodeItem = barcodeInfo[index];
-//         let findItem = null
-//         for (let item of items) {
-//             if (item.barcode == barcodeItem.barcode) {
-//                 findItem = item
-//                 break;
-//             }
-//         }
-//         findItem.count = barcodeItem.count
-//         resultGoods.push(findItem)
-//     }
-//     return resultGoods
-//     return allGoodsCount.map(({barcode, ...rest}) => {
-//         let searchItems = items.filter(item => item.barcode === barcode)
-//         if(searchItems.length > 0){
-//             return {
-//                 ...searchItems[0],
-
-//             }
-//         }else{
-//             return {
-
-//             }
-//         }
-//     })
-// }
 
 
 const getAllGoodsPromotion = (allGoodsInfoCount) => {
