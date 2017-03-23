@@ -10,19 +10,32 @@ function printReceipt(tags) {
     // console.log(finalResult)
 
 }
+function toDecimal2(x) {
+    var fNum = Math.round(x * 100) / 100;
+    var result = fNum.toString();
+    var index = result.indexOf('.');
+    if (index < 0) {
+        index = result.length;
+        result += '.';
+    }
+    while (result.length <= index + 2) {
+        result += '0';
+    }
+    return result;
+}
 
- 
 
 
 function printGoodsInfo(receiptInfo) {
     let printInfo = `***<没钱赚商店>收据***`
     for (let goodInfo of receiptInfo.goods) {
-        let goodInfoStr = `\n名称：${goodInfo.name}，数量：${goodInfo.count}${goodInfo.unit}，单价：${goodInfo.price}(元)，小计：${goodInfo.total}(元)`
+        let goodInfoStr = `\n名称：${goodInfo.name}，数量：${goodInfo.count}${goodInfo.unit}，单价：${toDecimal2(goodInfo.price)}(元)，小计：${toDecimal2(goodInfo.total)}(元)`
         printInfo += goodInfoStr
     }
+
     printInfo += `\n----------------------
-总计：${receiptInfo.savedPrice}(元)
-节省：${receiptInfo.realPrice - receiptInfo.savedPrice}(元)
+总计：${toDecimal2(receiptInfo.savedPrice)}(元)
+节省：${toDecimal2(receiptInfo.realPrice - receiptInfo.savedPrice)}(元)
 **********************`
 
     console.log(printInfo)
@@ -33,8 +46,8 @@ function countGoodsPrice(goods) {
     finalResult.realPrice = 0
     finalResult.savedPrice = 0
     finalResult.goods = []
-    for (var index = 0; index < goods.length; index++) {
-        var good = goods[index];
+    for (let index = 0; index < goods.length; index++) {
+        let good = goods[index];
         good.total = countGoodPrice(good)
         finalResult.realPrice += good.count * good.price
         finalResult.savedPrice += good.total
@@ -56,8 +69,8 @@ function countGoodPrice(good) {
 function getGoodsInfo(barcodeInfo) {
     let resultGoods = []
     let items = loadAllItems()
-    for (var index = 0; index < barcodeInfo.length; index++) {
-        var barcodeItem = barcodeInfo[index];
+    for (let index = 0; index < barcodeInfo.length; index++) {
+        let barcodeItem = barcodeInfo[index];
         let findItem = null
         for (let item of items) {
             if (item.barcode == barcodeItem.barcode) {
@@ -74,8 +87,8 @@ function getGoodsInfo(barcodeInfo) {
 function getGoodsPromotion(basicGoodsInfo) {
     let resultGoods = []
     let promotions = loadPromotions()
-    for (var index = 0; index < basicGoodsInfo.length; index++) {
-        var basicItem = basicGoodsInfo[index];
+    for (let index = 0; index < basicGoodsInfo.length; index++) {
+        let basicItem = basicGoodsInfo[index];
         let findPromotion = null
         for (let promotion of promotions) {
             if (promotion.barcodes.indexOf(basicItem.barcode) !== -1) {
@@ -95,7 +108,7 @@ function countGoods(codes) {
     let split = []
     let barcode = ''
     let count = 0
-    for (var index = 0; index < codes.length; index++) {
+    for (let index = 0; index < codes.length; index++) {
         let code = codes[index];
         split = code.split('-')
         barcode = split[0]
