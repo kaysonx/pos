@@ -16,7 +16,7 @@ const getAllGoodsCount = (userBarcodes) => {
       count
     } = resolveUserBarcode(userBarcode)
     let findResult = findByBarcode(allGoodsCount, barcode)
-    if (findResult == null) {
+    if (findResult === null) {
       allGoodsCount.push({
         barcode: barcode,
         count: count
@@ -30,7 +30,7 @@ const getAllGoodsCount = (userBarcodes) => {
 
 const resolveUserBarcode = (userBarcode) => {
   let [barcode, count] = userBarcode.split('-')
-  count = count == undefined ? 1 : parseFloat(count)
+  count = count === undefined ? 1 : parseFloat(count)
   return {
     barcode,
     count
@@ -38,29 +38,27 @@ const resolveUserBarcode = (userBarcode) => {
 }
 
 const findByBarcode = (array, barcode) => {
-  let searchResult = array.filter(a => a.barcode === barcode)
-  return searchResult.length > 0 ? searchResult[0] : null
+  let [searchResult] = array.filter(a => a.barcode === barcode)
+  return searchResult !== undefined ? searchResult : null
 }
 
 const getAllGoodsInfo = (barcodeInfo) => {
   let items = loadAllItems()
   return barcodeInfo.map(goods => {
-    let searchItems = items.filter(item => item.barcode === goods.barcode)
-    searchItems[0].count = goods.count
-    return searchItems[0]
+    let [searchItem] = items.filter(item => item.barcode === goods.barcode)
+    return Object.assign({}, searchItem, {
+      count: goods.count
+    })
   })
 }
 
 const getAllGoodsPromotion = (allGoodsInfoCount) => {
   let promotions = loadPromotions()
   return allGoodsInfoCount.map(goods => {
-    let findPromotion = promotions.filter(p => p.barcodes.includes(goods.barcode))
-    if (findPromotion.length > 0) {
-      goods.promotion_type = findPromotion[0].type
-    } else {
-      goods.promotion_type = ""
-    }
-    return goods
+    let [findPromotion] = promotions.filter(p => p.barcodes.includes(goods.barcode))
+    return Object.assign({}, goods, {
+      promotion_type: findPromotion !== undefined ? findPromotion.type : ""
+    })
   })
 }
 
@@ -68,17 +66,21 @@ const countAllGoodsPrice = (allGoods) => {
   let allGoodsPrice = 0
   let allGoodsSaved = 0
   let cartItems = allGoods.map(goods => {
-    let goodsPriceInfo = countGoodsPrice(goods)
-    goods.total = goodsPriceInfo.total
-    goods.savedPrice = goodsPriceInfo.savedPrice
-    allGoodsPrice += goods.total
-    allGoodsSaved += goods.savedPrice
-    return goods
+    let {
+      total,
+      savedPrice
+    } = countGoodsPrice(goods)
+    allGoodsPrice += total
+    allGoodsSaved += savedPrice
+    return Object.assign({}, goods, {
+      total,
+      savedPrice
+    })
   })
   return {
-    cartItems: cartItems,
-    allGoodsPrice: allGoodsPrice,
-    allGoodsSaved: allGoodsSaved
+    cartItems,
+    allGoodsPrice,
+    allGoodsSaved
   }
 }
 
@@ -102,11 +104,9 @@ const countGoodsPrice = (goods) => {
 const printGoodsInfo = (receiptInfo) => {
   let printInfo = `***<没钱赚商店>收据***`
   for (let goodInfo of receiptInfo.cartItems) {
-    let goodInfoStr = `\n名称：${goodInfo.name}，数量：${goodInfo.count}${goodInfo.unit}，单价：${goodInfo.price.toFixed(2)}(元)，小计：${goodInfo.total.toFixed(2)}(元)`
-    printInfo += goodInfoStr
+    printInfo += `\n名称：${goodInfo.name}，数量：${goodInfo.count}${goodInfo.unit}，单价：${goodInfo.price.toFixed(2)}(元)，小计：${goodInfo.total.toFixed(2)}(元)`
   }
-  printInfo += `\n----------------------\n总计：${receiptInfo.allGoodsPrice.toFixed(2)}(元)
-节省：${receiptInfo.allGoodsSaved.toFixed(2)}(元)\n**********************`
+  printInfo += `\n----------------------\n总计：${receiptInfo.allGoodsPrice.toFixed(2)}(元)\n节省：${receiptInfo.allGoodsSaved.toFixed(2)}(元)\n**********************`
   console.log(printInfo)
 }
 
