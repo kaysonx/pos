@@ -1,13 +1,11 @@
 'use strict';
 
 function printReceipt(tags) {
-
-    let countGoodsInfo = countGoods(tags)
+    let countGoodsInfo = getAllGoodsCount(tags)
     let basicGoodsInfo = getGoodsInfo(countGoodsInfo)
     let basicGoodsInfo_promotion = getGoodsPromotion(basicGoodsInfo)
     let finalResult = countGoodsPrice(basicGoodsInfo_promotion)
     printGoodsInfo(finalResult)
-    // console.log(finalResult)
 
 }
 function toDecimal2(x) {
@@ -42,10 +40,14 @@ function printGoodsInfo(receiptInfo) {
 }
 
 function countGoodsPrice(goods) {
-    let finalResult = {}
-    finalResult.realPrice = 0
-    finalResult.savedPrice = 0
-    finalResult.goods = []
+    let finalResult = {
+        realPrice: 0,
+        savedPrice: 0,
+        goods: []
+    }
+    // finalResult.realPrice = 0
+    // finalResult.savedPrice = 0
+    // finalResult.goods = []
     for (let index = 0; index < goods.length; index++) {
         let good = goods[index];
         good.total = countGoodPrice(good)
@@ -123,15 +125,32 @@ function countGoods(codes) {
     return resultGoods
 }
 
-
-function findObject(objs, barcode) {
-    for (let obj of objs) {
-        if (obj.barcode === barcode) {
-            return obj
+const getAllGoodsCount = (userBarcodes) => {
+    let allGoodsCount = []
+    userBarcodes.map(userBarcode => {
+        let { barcode, count } = resolveUserBarcode(userBarcode)
+        let findResult = findByBarcode(allGoodsCount, barcode)
+        if (findResult == null) {
+            allGoodsCount.push({ barcode: barcode, count: count })
+        } else {
+            findResult.count += count
         }
+    })
+    return allGoodsCount
+}
+
+const resolveUserBarcode = (userBarcode) => {
+    let [barcode, count] = userBarcode.split('-')
+    count = count == undefined ? 1 : parseFloat(count)
+    return {
+        barcode,
+        count
     }
-    return null
 }
 
 
+const findByBarcode = (array, barcode) => {
+    let searchResult = array.filter(a => a.barcode === barcode)
+    return searchResult.length > 0 ? searchResult[0] : null
+}
 
