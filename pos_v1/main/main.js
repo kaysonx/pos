@@ -5,16 +5,42 @@ function printReceipt(tags) {
     let countGoodsInfo = countGoods(tags)
     let basicGoodsInfo = getGoodsInfo(countGoodsInfo)
     let basicGoodsInfo_promotion = getGoodsPromotion(basicGoodsInfo)
-    console.log(basicGoodsInfo_promotion)
+    let finalResult = countGoodsPrice(basicGoodsInfo_promotion)
+    printGoodsInfo(finalResult)
+    // console.log(finalResult)
 
+}
+
+ 
+
+
+function printGoodsInfo(receiptInfo) {
+    let printInfo = `***<没钱赚商店>收据***`
+    for (let goodInfo of receiptInfo.goods) {
+        let goodInfoStr = `\n名称：${goodInfo.name}，数量：${goodInfo.count}${goodInfo.unit}，单价：${goodInfo.price}(元)，小计：${goodInfo.total}(元)`
+        printInfo += goodInfoStr
+    }
+    printInfo += `\n----------------------
+总计：${receiptInfo.savedPrice}(元)
+节省：${receiptInfo.realPrice - receiptInfo.savedPrice}(元)
+**********************`
+
+    console.log(printInfo)
 }
 
 function countGoodsPrice(goods) {
     let finalResult = {}
+    finalResult.realPrice = 0
+    finalResult.savedPrice = 0
+    finalResult.goods = []
     for (var index = 0; index < goods.length; index++) {
         var good = goods[index];
         good.total = countGoodPrice(good)
+        finalResult.realPrice += good.count * good.price
+        finalResult.savedPrice += good.total
+        finalResult.goods.push(good)
     }
+    return finalResult
 }
 
 function countGoodPrice(good) {
