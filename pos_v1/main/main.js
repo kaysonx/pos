@@ -3,7 +3,7 @@
 function printReceipt(tags) {
     let countGoodsInfo = getAllGoodsCount(tags)
     let basicGoodsInfo = getGoodsInfo(countGoodsInfo)
-    let basicGoodsInfo_promotion = getGoodsPromotion(basicGoodsInfo)
+    let basicGoodsInfo_promotion = getAllGoodsPromotion(basicGoodsInfo)
     let finalResult = countGoodsPrice(basicGoodsInfo_promotion)
     printGoodsInfo(finalResult)
 
@@ -35,7 +35,6 @@ function printGoodsInfo(receiptInfo) {
 总计：${toDecimal2(receiptInfo.savedPrice)}(元)
 节省：${toDecimal2(receiptInfo.realPrice - receiptInfo.savedPrice)}(元)
 **********************`
-
     console.log(printInfo)
 }
 
@@ -45,9 +44,6 @@ function countGoodsPrice(goods) {
         savedPrice: 0,
         goods: []
     }
-    // finalResult.realPrice = 0
-    // finalResult.savedPrice = 0
-    // finalResult.goods = []
     for (let index = 0; index < goods.length; index++) {
         let good = goods[index];
         good.total = countGoodPrice(good)
@@ -86,44 +82,52 @@ function getGoodsInfo(barcodeInfo) {
     return resultGoods
 }
 
-function getGoodsPromotion(basicGoodsInfo) {
-    let resultGoods = []
+// const getGoodsInfo = (barcodeInfo) => {
+//     let resultGoods = []
+//     let items = loadAllItems()
+//     for (let index = 0; index < barcodeInfo.length; index++) {
+//         let barcodeItem = barcodeInfo[index];
+//         let findItem = null
+//         for (let item of items) {
+//             if (item.barcode == barcodeItem.barcode) {
+//                 findItem = item
+//                 break;
+//             }
+//         }
+//         findItem.count = barcodeItem.count
+//         resultGoods.push(findItem)
+//     }
+//     return resultGoods
+//     return allGoodsCount.map(({barcode, ...rest}) => {
+//         let searchItems = items.filter(item => item.barcode === barcode)
+//         if(searchItems.length > 0){
+//             return {
+//                 ...searchItems[0],
+
+//             }
+//         }else{
+//             return {
+
+//             }
+//         }
+//     })
+// }
+
+
+const getAllGoodsPromotion = (allGoodsInfoCount) => {
     let promotions = loadPromotions()
-    for (let index = 0; index < basicGoodsInfo.length; index++) {
-        let basicItem = basicGoodsInfo[index];
-        let findPromotion = null
-        for (let promotion of promotions) {
-            if (promotion.barcodes.indexOf(basicItem.barcode) !== -1) {
-                findPromotion = promotion
-                break;
-            }
-        }
-        basicItem.promotion_type = findPromotion == null ? "" : findPromotion.type
-        resultGoods.push(basicItem)
-    }
-    return resultGoods
-}
-
-
-function countGoods(codes) {
-    let resultGoods = []
-    let split = []
-    let barcode = ''
-    let count = 0
-    for (let index = 0; index < codes.length; index++) {
-        let code = codes[index];
-        split = code.split('-')
-        barcode = split[0]
-        count = split.length == 1 ? 1 : parseFloat(split[1])
-        let findResult = findObject(resultGoods, barcode)
-        if (findResult == null) {
-            resultGoods.push({ 'barcode': barcode, 'count': count })
+    return allGoodsInfoCount.map(goods => {
+        let findPromotion = promotions.filter(p => p.barcodes.includes(goods.barcode))
+        if (findPromotion.length > 0) {
+            goods.promotion_type = findPromotion[0].type
         } else {
-            findResult.count += count
+            goods.promotion_type = ""
         }
-    }
-    return resultGoods
+        return goods
+    })
 }
+
+
 
 const getAllGoodsCount = (userBarcodes) => {
     let allGoodsCount = []
